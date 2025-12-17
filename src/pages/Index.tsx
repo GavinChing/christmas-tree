@@ -14,7 +14,7 @@ const Index = () => {
   const [photos, setPhotos] = useState<string[]>([]);
   const [focusedPhotoIndex, setFocusedPhotoIndex] = useState<number | null>(null);
   const [orbitRotation, setOrbitRotation] = useState({ x: 0, y: 0 });
-  const [gestureEnabled, setGestureEnabled] = useState(false); // Start disabled, user can enable
+  const [cameraPermission, setCameraPermission] = useState<'prompt' | 'granted' | 'denied' | 'requesting'>('prompt');
   const [showInstructions, setShowInstructions] = useState(true);
 
   // Audio hook
@@ -47,9 +47,22 @@ const Index = () => {
     }
   }, [treeState, photos.length]);
 
+  // Request camera permission
+  const handleRequestCamera = useCallback(async () => {
+    setCameraPermission('requesting');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop()); // Stop the test stream
+      setCameraPermission('granted');
+    } catch (error) {
+      console.error('Camera permission denied:', error);
+      setCameraPermission('denied');
+    }
+  }, []);
+
   // Hand gesture hook
   const handGesture = useHandGesture({
-    enabled: gestureEnabled,
+    enabled: cameraPermission === 'granted',
     onGestureChange: handleGestureChange,
   });
 
@@ -93,8 +106,8 @@ const Index = () => {
         gesture={handGesture.gesture}
         isTracking={handGesture.isTracking}
         usingMouse={!handGesture.isTracking}
-        gestureEnabled={gestureEnabled}
-        onToggleGesture={() => setGestureEnabled(!gestureEnabled)}
+        cameraPermission={cameraPermission}
+        onRequestCamera={handleRequestCamera}
       />
 
       <AudioControl
