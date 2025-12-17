@@ -4,6 +4,7 @@ import { GestureIndicator } from '@/components/christmas/GestureIndicator';
 import { AudioControl } from '@/components/christmas/AudioControl';
 import { PhotoUpload } from '@/components/christmas/PhotoUpload';
 import { InstructionsOverlay } from '@/components/christmas/InstructionsOverlay';
+import { CameraDebug } from '@/components/christmas/CameraDebug';
 import { useHandGesture } from '@/hooks/useHandGesture';
 import { useMouseFallback } from '@/hooks/useMouseFallback';
 import { useChristmasAudio } from '@/hooks/useChristmasAudio';
@@ -131,6 +132,9 @@ const Index = () => {
         photos={photos}
         onPhotosChange={setPhotos}
       />
+
+      {/* Camera Debug Preview */}
+      <CameraDebug enabled={cameraPermission === 'granted'} />
 
       {/* Instructions Overlay */}
       {showInstructions && (
