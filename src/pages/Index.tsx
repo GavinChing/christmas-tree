@@ -47,17 +47,10 @@ const Index = () => {
     }
   }, [treeState, photos.length]);
 
-  // Request camera permission
-  const handleRequestCamera = useCallback(async () => {
-    setCameraPermission('requesting');
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      stream.getTracks().forEach(track => track.stop()); // Stop the test stream
-      setCameraPermission('granted');
-    } catch (error) {
-      console.error('Camera permission denied:', error);
-      setCameraPermission('denied');
-    }
+  // Request camera permission - just set state, let MediaPipe handle the actual camera
+  const handleRequestCamera = useCallback(() => {
+    console.log('[Index] User requested camera access');
+    setCameraPermission('granted'); // Let MediaPipe handle the actual camera request
   }, []);
 
   // Hand gesture hook

@@ -121,6 +121,8 @@ export function useHandGesture({ enabled, onGestureChange }: UseHandGestureOptio
 
     const initMediaPipe = async () => {
       try {
+        console.log('[Gesture] Starting MediaPipe initialization...');
+        
         // Dynamically import MediaPipe
         const { Hands } = await import('@mediapipe/hands');
         const { Camera } = await import('@mediapipe/camera_utils');
@@ -130,6 +132,8 @@ export function useHandGesture({ enabled, onGestureChange }: UseHandGestureOptio
         // Create video element
         const video = document.createElement('video');
         video.style.display = 'none';
+        video.setAttribute('playsinline', 'true'); // Important for iOS
+        video.setAttribute('autoplay', 'true');
         document.body.appendChild(video);
         videoRef.current = video;
 
@@ -150,21 +154,51 @@ export function useHandGesture({ enabled, onGestureChange }: UseHandGestureOptio
         hands.onResults(onResults);
         handsRef.current = hands;
 
-        // Initialize camera
-        const camera = new Camera(video, {
-          onFrame: async () => {
-            if (handsRef.current && videoRef.current) {
-              await handsRef.current.send({ image: videoRef.current });
-            }
-          },
-          width: 640,
-          height: 480,
-        });
+        console.log('[Gesture] MediaPipe Hands initialized, starting camera...');
 
-        cameraRef.current = camera;
-        await camera.start();
+        // Initialize camera with explicit getUserMedia first
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: 640 },
+              height: { ideal: 480 },
+              facingMode: 'user'
+            }
+          });
+          
+          video.srcObject = stream;
+          await video.play();
+          
+          console.log('[Gesture] Camera stream acquired successfully');
+
+          // Use MediaPipe Camera for frame processing
+          const camera = new Camera(video, {
+            onFrame: async () => {
+              if (handsRef.current && videoRef.current) {
+                try {
+                  await handsRef.current.send({ image: videoRef.current });
+                } catch (e) {
+                  // Silently handle frame errors
+                }
+              }
+            },
+            width: 640,
+            height: 480,
+          });
+
+          cameraRef.current = camera;
+          await camera.start();
+          console.log('[Gesture] MediaPipe camera processing started');
+        } catch (cameraError) {
+          console.error('[Gesture] Camera access failed:', cameraError);
+          // Update state to reflect the failure
+          setState(prev => ({
+            ...prev,
+            isTracking: false,
+          }));
+        }
       } catch (error) {
-        console.warn('MediaPipe initialization failed, using mouse fallback:', error);
+        console.error('[Gesture] MediaPipe initialization failed:', error);
       }
     };
 
@@ -172,10 +206,15 @@ export function useHandGesture({ enabled, onGestureChange }: UseHandGestureOptio
 
     return () => {
       mounted = false;
+      console.log('[Gesture] Cleaning up...');
       if (cameraRef.current) {
         cameraRef.current.stop();
       }
       if (videoRef.current) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
         videoRef.current.remove();
       }
     };
