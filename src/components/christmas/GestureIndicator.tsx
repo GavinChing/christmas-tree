@@ -41,17 +41,17 @@ export function GestureIndicator({
           disabled={cameraPermission === 'requesting'}
           className="glass-gold rounded-xl px-4 py-3 flex items-center gap-3 text-foreground 
             hover:scale-105 active:scale-95 transition-all duration-300
-            disabled:opacity-70 disabled:cursor-wait"
+            disabled:opacity-70 disabled:cursor-wait animate-pulse"
         >
           <div className="p-2 rounded-lg bg-christmas-gold/30 text-christmas-gold">
             <Camera className="w-5 h-5" />
           </div>
           <div className="flex flex-col items-start">
             <span className="text-sm font-medium">
-              {cameraPermission === 'requesting' ? '正在请求权限...' : '启用手势控制'}
+              {cameraPermission === 'requesting' ? '请在弹窗中允许摄像头...' : '👆 点击启用手势控制'}
             </span>
             <span className="text-xs text-muted-foreground">
-              点击授权摄像头
+              {cameraPermission === 'requesting' ? '等待浏览器权限' : '需要摄像头权限'}
             </span>
           </div>
         </button>
