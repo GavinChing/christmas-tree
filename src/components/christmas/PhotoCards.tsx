@@ -4,28 +4,28 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { TreeState, PhotoCard } from '@/types/christmas';
 
-// Default placeholder images
+// Default placeholder images - higher resolution for clarity
 const DEFAULT_PHOTOS = [
-  'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1544826252-a8f669ffe4bd?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1479722842840-c0a823bd0cd6?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1545622783-b3e021430fee?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1513297887119-d46091b24bfa?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1418489098061-ce87b5dc3aee?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1514803530614-3d6e0bd66c63?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1481286943471-1f233f26c56b?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1485083269755-a7b559a4fe5e?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1482330454287-4e2c1bb3e9dd?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1513297887119-d46091b24bfa?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1481586542890-a17ed8a1d6f0?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1515266591878-f93e32bc5937?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1483808161634-ce6ed94ec53d?w=200&h=200&fit=crop',
+  'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1544826252-a8f669ffe4bd?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1479722842840-c0a823bd0cd6?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1545622783-b3e021430fee?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1513297887119-d46091b24bfa?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1418489098061-ce87b5dc3aee?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1514803530614-3d6e0bd66c63?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1481286943471-1f233f26c56b?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1485083269755-a7b559a4fe5e?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1482330454287-4e2c1bb3e9dd?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1513297887119-d46091b24bfa?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1481586542890-a17ed8a1d6f0?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1515266591878-f93e32bc5937?w=400&h=400&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1483808161634-ce6ed94ec53d?w=400&h=400&fit=crop&q=80',
 ];
 
 interface PhotoCardsProps {
@@ -88,27 +88,33 @@ function PhotoCardMesh({
     loader.load(
       url,
       (tex) => {
-        tex.minFilter = THREE.LinearFilter;
+        // High quality texture settings
+        tex.minFilter = THREE.LinearMipmapLinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        tex.anisotropy = 16; // Better quality at angles
+        tex.generateMipmaps = true;
+        tex.colorSpace = THREE.SRGBColorSpace;
         setTexture(tex);
       },
       undefined,
       () => {
         // On error, create a colored placeholder
         const canvas = document.createElement('canvas');
-        canvas.width = 200;
-        canvas.height = 200;
+        canvas.width = 400;
+        canvas.height = 400;
         const ctx = canvas.getContext('2d');
         if (ctx) {
           const hue = (index * 30) % 360;
           ctx.fillStyle = `hsl(${hue}, 60%, 50%)`;
-          ctx.fillRect(0, 0, 200, 200);
+          ctx.fillRect(0, 0, 400, 400);
           ctx.fillStyle = 'white';
-          ctx.font = '48px sans-serif';
+          ctx.font = '96px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText('🎄', 100, 100);
+          ctx.fillText('🎄', 200, 200);
         }
         const placeholderTex = new THREE.CanvasTexture(canvas);
+        placeholderTex.colorSpace = THREE.SRGBColorSpace;
         setTexture(placeholderTex);
       }
     );
@@ -159,15 +165,17 @@ function PhotoCardMesh({
   if (!texture) return null;
 
   return (
-    <mesh ref={meshRef} position={treePosition} scale={[0.4, 0.4, 1]}>
+    <mesh ref={meshRef} position={treePosition} scale={[0.5, 0.5, 1]}>
       <planeGeometry args={[1, 1]} />
       <meshStandardMaterial 
         map={texture} 
         side={THREE.DoubleSide}
         transparent
-        opacity={isFocused ? 1 : 0.9}
+        opacity={isFocused ? 1 : 0.95}
         emissive={new THREE.Color('#ffffff')}
-        emissiveIntensity={isFocused ? 0.2 : 0.1}
+        emissiveIntensity={isFocused ? 0.3 : 0.15}
+        roughness={0.3}
+        metalness={0.1}
       />
     </mesh>
   );
