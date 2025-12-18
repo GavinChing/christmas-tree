@@ -169,6 +169,84 @@ export function ParticleSystem({ state, particleCount = 4000 }: ParticleSystemPr
   );
 }
 
+// Colorful ornament balls (red, gold, etc.)
+export function OrnamentBalls({ state }: { state: TreeState }) {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const timeRef = useRef(0);
+  const ornamentCount = 35;
+  
+  const ornamentData = useMemo(() => {
+    const colors = [
+      new THREE.Color('#C41E3A'), // Red
+      new THREE.Color('#8B0000'), // Dark red
+      new THREE.Color('#FFD700'), // Gold
+      new THREE.Color('#FF6347'), // Tomato red
+      new THREE.Color('#DC143C'), // Crimson
+      new THREE.Color('#B22222'), // Firebrick
+      new THREE.Color('#DAA520'), // Goldenrod
+      new THREE.Color('#FF4500'), // Orange red
+    ];
+    
+    return Array.from({ length: ornamentCount }, (_, i) => {
+      const treePos = generateOrnamentPosition(i, ornamentCount);
+      const galaxyPos = generateGalaxyPosition();
+      
+      return {
+        treePosition: treePos,
+        galaxyPosition: galaxyPos,
+        color: colors[i % colors.length],
+        scale: 0.1 + Math.random() * 0.08,
+        phase: Math.random() * Math.PI * 2,
+      };
+    });
+  }, []);
+
+  const positionsRef = useRef(ornamentData.map(p => [...p.treePosition]));
+
+  useEffect(() => {
+    const targetPositions = state === 'tree' 
+      ? ornamentData.map(p => p.treePosition)
+      : ornamentData.map(p => p.galaxyPosition);
+
+    positionsRef.current.forEach((pos, i) => {
+      gsap.to(pos, {
+        0: targetPositions[i][0],
+        1: targetPositions[i][1],
+        2: targetPositions[i][2],
+        duration: 1.2 + Math.random() * 0.4,
+        ease: 'power2.inOut',
+        delay: Math.random() * 0.2,
+      });
+    });
+  }, [state, ornamentData]);
+
+  useFrame((_, delta) => {
+    if (!meshRef.current) return;
+    
+    timeRef.current += delta;
+    
+    ornamentData.forEach((ornament, i) => {
+      const pos = positionsRef.current[i];
+      dummy.position.set(pos[0], pos[1], pos[2]);
+      dummy.scale.setScalar(ornament.scale);
+      dummy.updateMatrix();
+      meshRef.current!.setMatrixAt(i, dummy.matrix);
+      meshRef.current!.setColorAt(i, ornament.color);
+    });
+    
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    if (meshRef.current.instanceColor) meshRef.current.instanceColor.needsUpdate = true;
+  });
+
+  return (
+    <instancedMesh ref={meshRef} args={[undefined, undefined, ornamentCount]}>
+      <sphereGeometry args={[1, 16, 16]} />
+      <meshStandardMaterial metalness={0.8} roughness={0.2} envMapIntensity={1} />
+    </instancedMesh>
+  );
+}
+
 // Gem-like cubes and icosahedrons (high reflective)
 export function GemOrnaments({ state }: { state: TreeState }) {
   const cubeRef = useRef<THREE.InstancedMesh>(null);
