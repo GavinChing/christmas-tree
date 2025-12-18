@@ -124,12 +124,12 @@ function PhotoCardMesh({
     if (!meshRef.current) return;
 
     const targetPos = isFocused 
-      ? [0, 0, 1.5]  // 更近的位置
+      ? [0, 0, 0.8]  // 更近的位置
       : state === 'tree' 
         ? treePosition 
         : galaxyPosition;
 
-    const targetScale = isFocused ? 3 : 0.4;  // 更大的缩放
+    const targetScale = isFocused ? 5 : 0.4;  // 更大的缩放
 
     gsap.to(meshRef.current.position, {
       x: targetPos[0],
