@@ -70,32 +70,18 @@ export function TreeStar({ state }: TreeStarProps) {
 
   return (
     <group ref={groupRef} position={[0, 4.4, 0]}>
-      {/* Glowing star */}
+      {/* Single tilted star */}
       <mesh 
         ref={starRef} 
         geometry={starGeometry}
         rotation={[Math.PI / 4, 0.3, 0]}
         position={[0, 0, 0]}
       >
-        <meshStandardMaterial
-          color="#ffeedd"
-          emissive="#ffdd00"
-          emissiveIntensity={3}
-          metalness={0.95}
-          roughness={0.05}
+        <meshBasicMaterial
+          color="#ffd700"
           transparent
           opacity={1}
-        />
-      </mesh>
-      
-      {/* Outer glow effect */}
-      <mesh rotation={[Math.PI / 4, 0.3, 0]} scale={1.3}>
-        <circleGeometry args={[0.35, 32]} />
-        <meshBasicMaterial 
-          color="#ffdd44"
-          transparent
-          opacity={0.3}
-          side={THREE.DoubleSide}
+          toneMapped={false}
         />
       </mesh>
     </group>

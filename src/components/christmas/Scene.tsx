@@ -82,47 +82,34 @@ function SceneContent({
         Use enhanced lighting instead for reflections.
       */}
       
-      {/* Enhanced lighting for beauty */}
-      <ambientLight intensity={0.15} color="#e8f0ff" />
+      {/* Simplified lighting - fewer point lights for better performance */}
+      <ambientLight intensity={0.2} />
       
-      {/* Main spotlight from top - warm golden */}
+      {/* Single main spotlight */}
       <spotLight 
-        position={[0, 15, 8]} 
-        angle={0.5}
-        penumbra={1}
-        intensity={3}
-        color="#fff8e0"
-      />
-      
-      {/* Secondary fill light - cool blue */}
-      <spotLight 
-        position={[-8, 6, -5]} 
+        position={[0, 12, 5]} 
         angle={0.6}
         penumbra={0.8}
-        intensity={1.5}
-        color="#aaccff"
+        intensity={2.5}
+        color="#fff8e8"
       />
       
-      {/* Bottom warm glow */}
-      <pointLight position={[0, -3, 0]} intensity={2} color="#ff4422" distance={15} />
+      {/* Single colored accent light */}
+      <pointLight position={[0, -2, 0]} intensity={1.2} color="#ff6633" distance={12} />
       
-      {/* Side accent lights */}
-      <pointLight position={[5, 2, 3]} intensity={0.8} color="#ffdd44" distance={10} />
-      <pointLight position={[-5, 2, -3]} intensity={0.8} color="#44ff88" distance={10} />
-      
-      {/* Background stars - magical starfield */}
+      {/* Background stars - reduced count for performance */}
       <Stars 
-        radius={80} 
-        depth={60} 
-        count={3000} 
-        factor={5} 
-        saturation={0.8} 
+        radius={100} 
+        depth={50} 
+        count={2000} 
+        factor={4} 
+        saturation={0.5} 
         fade 
-        speed={0.4}
+        speed={0.3}
       />
       
-      {/* Main particle system - dense tree */}
-      <ParticleSystem state={state} particleCount={5000} />
+      {/* Main particle system */}
+      <ParticleSystem state={state} particleCount={4000} />
       
       {/* Colorful ornament balls (red, gold) */}
       <OrnamentBalls state={state} />
@@ -143,17 +130,17 @@ function SceneContent({
       {/* Tree star topper */}
       <TreeStar state={state} />
       
-      {/* Post-processing effects - magical glow */}
+      {/* Post-processing effects - enhanced glow */}
       <EffectComposer>
         <Bloom 
-          luminanceThreshold={0.6}
-          luminanceSmoothing={0.3}
-          intensity={1.8}
+          luminanceThreshold={0.85}
+          luminanceSmoothing={0.2}
+          intensity={1.5}
           mipmapBlur
         />
         <Vignette
-          offset={0.25}
-          darkness={0.5}
+          offset={0.2}
+          darkness={0.6}
         />
       </EffectComposer>
     </>
