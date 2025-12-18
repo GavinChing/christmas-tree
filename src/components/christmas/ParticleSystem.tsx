@@ -306,13 +306,10 @@ export function OrnamentBalls({ state }: { state: TreeState }) {
 
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, ornamentCount]}>
-      <sphereGeometry args={[1, 12, 12]} />
-      <meshStandardMaterial 
-        metalness={0.7} 
-        roughness={0.15} 
-        envMapIntensity={1.5}
-        emissive="#ff3333"
-        emissiveIntensity={0.4}
+      <sphereGeometry args={[1, 8, 8]} />
+      <meshBasicMaterial 
+        color="#ff3333"
+        toneMapped={false}
       />
     </instancedMesh>
   );
@@ -439,23 +436,11 @@ export function GemOrnaments({ state }: { state: TreeState }) {
     <>
       <instancedMesh ref={cubeRef} args={[undefined, undefined, cubeCount]}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial 
-          color="#ffffff"
-          emissive="#e8e8f0"
-          emissiveIntensity={1}
-          metalness={0.95} 
-          roughness={0.05}
-        />
+        <meshBasicMaterial color="#f8f8ff" toneMapped={false} />
       </instancedMesh>
       <instancedMesh ref={icoRef} args={[undefined, undefined, icoCount]}>
         <icosahedronGeometry args={[1, 0]} />
-        <meshStandardMaterial 
-          color="#ffffff"
-          emissive="#e8e8f0"
-          emissiveIntensity={1}
-          metalness={0.95} 
-          roughness={0.05}
-        />
+        <meshBasicMaterial color="#f8f8ff" toneMapped={false} />
       </instancedMesh>
     </>
   );
@@ -549,14 +534,7 @@ export function TetrahedronSpiral({ state }: { state: TreeState }) {
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, tetraCount]}>
       <tetrahedronGeometry args={[1, 0]} />
-      <meshStandardMaterial 
-        color="#ffffff"
-        emissive="#ffffcc"
-        emissiveIntensity={0.8}
-        metalness={0.9}
-        roughness={0.1}
-        envMapIntensity={2.5}
-      />
+      <meshBasicMaterial color="#ffffee" toneMapped={false} />
     </instancedMesh>
   );
 }

@@ -109,15 +109,15 @@ function SceneContent({
       <pointLight position={[-3, -2.5, 2]} intensity={0.8} color="#22ff66" distance={8} />
       <pointLight position={[3, -2.5, -2]} intensity={0.8} color="#ff2244" distance={8} />
       
-      {/* Background stars */}
+      {/* Background stars - reduced count for performance */}
       <Stars 
         radius={100} 
         depth={50} 
-        count={5000} 
+        count={2000} 
         factor={4} 
         saturation={0.5} 
         fade 
-        speed={0.5}
+        speed={0.3}
       />
       
       {/* Main particle system */}
