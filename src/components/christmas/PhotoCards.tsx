@@ -117,11 +117,11 @@ function PhotoCardMesh({
     scaleVelocity: 0,
   });
   
-  // Spring physics constants - tuned for smooth, natural motion
-  const SPRING_STIFFNESS = 80;    // How snappy the spring is
-  const SPRING_DAMPING = 12;      // How quickly it settles (critical damping ~= 2*sqrt(stiffness))
-  const SCALE_STIFFNESS = 100;
-  const SCALE_DAMPING = 15;
+  // Spring physics constants - softer, slower for silky smooth motion
+  const SPRING_STIFFNESS = 25;    // Lower = slower, gentler movement
+  const SPRING_DAMPING = 8;       // Higher ratio = less bouncing, more fluid
+  const SCALE_STIFFNESS = 30;
+  const SCALE_DAMPING = 10;
 
   useEffect(() => {
     const loader = new THREE.TextureLoader();
