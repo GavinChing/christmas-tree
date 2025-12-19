@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
@@ -14,22 +14,16 @@ interface SceneContentProps {
   focusedPhotoIndex: number | null;
   orbitRotation: { x: number; y: number };
   handPosition: { x: number; y: number } | null;
-  starGlowIntensity: number;
 }
-
-// Shared ref for glow intensity (allows CameraController to communicate with parent)
-const glowIntensityRef = { current: 0 };
 
 function CameraController({ 
   state, 
   orbitRotation,
   handPosition,
-  onGlowChange,
 }: { 
   state: TreeState;
   orbitRotation: { x: number; y: number };
   handPosition: { x: number; y: number } | null;
-  onGlowChange?: (intensity: number) => void;
 }) {
   const { camera } = useThree();
   const targetRef = useRef(new THREE.Vector3(0, 0, 0));
@@ -41,50 +35,47 @@ function CameraController({
   useFrame((_, delta) => {
     // Detect state change to tree (pinch gesture completed)
     if (state === 'tree' && prevStateRef.current !== 'tree') {
-      transitionDelayRef.current = 2.0;
+      // Wait for tree to assemble before starting ribbon follow
+      transitionDelayRef.current = 2.0; // 2 second delay for assembly
       ribbonTimeRef.current = 0;
     }
     prevStateRef.current = state;
 
+    // Handle transition delay
     if (transitionDelayRef.current > 0) {
       transitionDelayRef.current -= delta;
     }
 
+    // Base camera distance
     const baseDistance = state === 'tree' ? 12 : 18;
     
     let targetX = 0;
     let targetY = 2;
     let targetZ = baseDistance;
     let lookAtY = 0;
-    let glowIntensity = 0;
     
     if (state === 'tree' && transitionDelayRef.current <= 0) {
-      ribbonTimeRef.current += delta * 0.15;
+      // Ribbon follow mode - camera spirals from bottom to top following the ribbon
+      ribbonTimeRef.current += delta * 0.15; // Speed of spiral
+      
+      // Loop the ribbon time (0 to 1 represents bottom to top)
       const t = (ribbonTimeRef.current % 1);
       
-      // Calculate glow intensity based on proximity to top (t approaching 1)
-      // Glow starts at 0.7 and peaks at 1.0
-      glowIntensity = t > 0.7 ? Math.pow((t - 0.7) / 0.3, 2) : 0;
-      
+      // Match ribbon spiral parameters from TetrahedronSpiral
       const height = 7;
       const maxRadius = 3.0;
       const ribbonY = t * height - height / 2 + 0.3;
       const layerRadius = maxRadius * (1 - t * 0.88) + 0.15;
-      const angle = t * Math.PI * 6;
+      const angle = t * Math.PI * 6; // 3 full spirals
       
+      // Position camera outside the ribbon, looking at the ribbon point
       const cameraDistance = 5 + layerRadius * 1.5;
-      const cameraAngle = angle + Math.PI * 0.3;
+      const cameraAngle = angle + Math.PI * 0.3; // Slightly ahead of ribbon
       
       targetX = Math.cos(cameraAngle) * cameraDistance;
-      targetY = ribbonY + 1.5;
+      targetY = ribbonY + 1.5; // Slightly above the ribbon point
       targetZ = Math.sin(cameraAngle) * cameraDistance;
-      
-      // When near top, focus on the star
-      if (t > 0.85) {
-        lookAtY = 4.4; // Star position
-      } else {
-        lookAtY = ribbonY;
-      }
+      lookAtY = ribbonY;
     } else if (handPosition && state === 'galaxy') {
       targetX = (handPosition.x - 0.5) * 20;
       targetY = (0.5 - handPosition.y) * 10 + 2;
@@ -95,16 +86,14 @@ function CameraController({
       targetZ = Math.cos(orbitRotation.y) * baseDistance;
     }
     
-    // Update shared glow ref
-    glowIntensityRef.current = glowIntensity;
-    onGlowChange?.(glowIntensity);
-    
+    // Frame-rate independent smooth camera movement
     const smoothFactor = 1 - Math.exp(-3 * delta);
     
     positionRef.current.x += (targetX - positionRef.current.x) * smoothFactor;
     positionRef.current.y += (targetY - positionRef.current.y) * smoothFactor;
     positionRef.current.z += (targetZ - positionRef.current.z) * smoothFactor;
     
+    // Smooth look-at target
     targetRef.current.y += (lookAtY - targetRef.current.y) * smoothFactor;
     
     camera.position.copy(positionRef.current);
@@ -120,22 +109,24 @@ function SceneContent({
   focusedPhotoIndex,
   orbitRotation,
   handPosition,
-  starGlowIntensity,
 }: SceneContentProps) {
-  const [glow, setGlow] = useState(0);
-  
   return (
     <>
       <CameraController 
         state={state} 
         orbitRotation={orbitRotation}
         handPosition={handPosition}
-        onGlowChange={setGlow}
       />
       
-      {/* Simplified lighting */}
+      {/* 
+        Remove Environment component entirely - it loads HDR from raw.githack.com which is blocked in China.
+        Use enhanced lighting instead for reflections.
+      */}
+      
+      {/* Simplified lighting - fewer point lights for better performance */}
       <ambientLight intensity={0.2} />
       
+      {/* Single main spotlight */}
       <spotLight 
         position={[0, 12, 5]} 
         angle={0.6}
@@ -144,8 +135,10 @@ function SceneContent({
         color="#fff8e8"
       />
       
+      {/* Single colored accent light */}
       <pointLight position={[0, -2, 0]} intensity={1.2} color="#ff6633" distance={12} />
       
+      {/* Background stars - reduced count for performance */}
       <Stars 
         radius={100} 
         depth={50} 
@@ -156,19 +149,29 @@ function SceneContent({
         speed={0.3}
       />
       
+      {/* Main particle system */}
       <ParticleSystem state={state} particleCount={4000} />
+      
+      {/* Christmas gift boxes */}
       <GiftBoxes state={state} />
+      
+      {/* Gem ornaments (cubes & icosahedrons) */}
       <GemOrnaments state={state} />
+      
+      {/* Tetrahedron spiral ribbon */}
       <TetrahedronSpiral state={state} />
       
+      {/* Photo cards */}
       <PhotoCards 
         state={state} 
         photos={photos}
         focusedIndex={focusedPhotoIndex}
       />
       
-      <TreeStar state={state} glowIntensity={glow} />
+      {/* Tree star topper */}
+      <TreeStar state={state} />
       
+      {/* Post-processing effects - enhanced glow */}
       <EffectComposer>
         <Bloom 
           luminanceThreshold={0.85}
@@ -202,13 +205,13 @@ export function ChristmasScene({
   handPosition,
   onReady,
 }: ChristmasSceneProps) {
+  // Call onReady after mount
   useEffect(() => {
     const timer = setTimeout(() => {
       onReady?.();
     }, 500);
     return () => clearTimeout(timer);
   }, [onReady]);
-  
   return (
     <Canvas
       camera={{ position: [0, 2, 12], fov: 60 }}
@@ -231,7 +234,6 @@ export function ChristmasScene({
         focusedPhotoIndex={focusedPhotoIndex}
         orbitRotation={orbitRotation}
         handPosition={handPosition}
-        starGlowIntensity={0}
       />
     </Canvas>
   );
