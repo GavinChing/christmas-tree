@@ -52,7 +52,7 @@ export function CustomTextOverlay({ isVisible, text, onTextChange }: CustomTextO
           }}
         >
           <h1 
-            className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-200 via-white to-blue-100 bg-clip-text text-transparent"
+            className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-yellow-200 via-amber-100 to-yellow-300 bg-clip-text text-transparent"
             style={{
               fontFamily: "'Playfair Display', serif",
             }}
@@ -68,7 +68,7 @@ export function CustomTextOverlay({ isVisible, text, onTextChange }: CustomTextO
           <Button
             variant="outline"
             size="icon"
-            className="fixed bottom-8 right-4 z-30 glass border-white/20 hover:bg-white/10 text-foreground"
+            className="fixed bottom-12 right-4 z-30 glass border-white/20 hover:bg-white/10 text-foreground"
           >
             <Edit3 className="h-4 w-4" />
           </Button>
