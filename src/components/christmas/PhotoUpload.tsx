@@ -8,7 +8,7 @@ interface PhotoUploadProps {
   maxPhotos?: number;
 }
 
-export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 12 }: PhotoUploadProps) {
+export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 30 }: PhotoUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
